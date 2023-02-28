@@ -8,8 +8,8 @@ import AboutTab from './tabs/AboutTab';
 
 const useStyles = makeStyles(theme => ({
     layoutHeader: {
-        height                        : 320,
-        minHeight                     : 320,
+        height                        : 150,
+        minHeight                     : 150,
         [theme.breakpoints.down('md')]: {
             height   : 240,
             minHeight: 240
@@ -66,15 +66,15 @@ function ProfilePage()
                         classes={{
                             root: "h-64"
                         }}
-                        label="Timeline"/>
+                        label="Bio data"/>
                     <Tab
                         classes={{
                             root: "h-64"
-                        }} label="About"/>
+                        }} label="Employment details"/>
                     <Tab
                         classes={{
                             root: "h-64"
-                        }} label="Photos & Videos"/>
+                        }} label="Security info"/>
                 </Tabs>
             }
             content={

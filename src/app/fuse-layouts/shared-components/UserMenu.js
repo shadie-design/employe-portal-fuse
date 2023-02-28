@@ -1,11 +1,60 @@
 import React, {useState} from 'react';
+import history from '@history';
 import {Avatar, Button, Icon, ListItemIcon, ListItemText, Popover, MenuItem, Typography} from '@material-ui/core';
 import {useSelector, useDispatch} from 'react-redux';
 import * as authActions from 'app/auth/store/actions';
 import {Link} from 'react-router-dom';
+import { useToasts } from "react-toast-notifications";
+import SetCookie from 'app/main/Hooks/SetCookie';
+import GetCookie from 'app/main/Hooks/GetCookie';
+import RemoveCookie from 'app/main/Hooks/RemoveCookie';
+import Api from '../../main/Api';
 
 function UserMenu(props)
 {
+
+//custom method
+const { addToast } = useToasts();
+
+const userName = GetCookie('Username');
+const userEmail = GetCookie('Email');
+const phoneNumber = GetCookie('Phone');
+
+const logout = () => {
+    const employeeName = GetCookie("Username");
+    const userToken = GetCookie("Token");
+    const logoutUrl = Api.AppBaseUrl + 'Logout/' + employeeName;
+    fetch(logoutUrl, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${userToken}`,
+        },
+    })
+        .then(res => res.json())
+        .then((data) => {
+          if (data.success === true) {
+
+            RemoveCookie("Username");
+            RemoveCookie("Email");
+            RemoveCookie("Phone");
+            RemoveCookie("Token");
+            RemoveCookie("TenantId");
+            SetCookie('IsLoggedIn', false);
+            history.push({
+                pathname: '/'
+            });
+            addToast(data.message, { appearance: 'success' }); 
+        }else{
+            addToast(data.message, { appearance: 'error' }); 
+        }
+        })
+}
+
+////end 
+
+
     const dispatch = useDispatch();
     const user = useSelector(({auth}) => auth.user);
 
@@ -30,14 +79,14 @@ function UserMenu(props)
                     :
                     (
                         <Avatar className="">
-                            {user.data.displayName[0]}
+                            {userName}
                         </Avatar>
                     )
                 }
 
                 <div className="hidden md:flex flex-col ml-12 items-start">
                     <Typography component="span" className="normal-case font-600 flex">
-                        {user.data.displayName}
+                        {userName}
                     </Typography>
                     <Typography className="text-11 capitalize" color="textSecondary">
                         {user.role.toString()}
@@ -63,22 +112,7 @@ function UserMenu(props)
                     paper: "py-8"
                 }}
             >
-                {!user.role || user.role.length === 0 ? (
-                    <React.Fragment>
-                        <MenuItem component={Link} to="/login">
-                            <ListItemIcon className="min-w-40">
-                                <Icon>lock</Icon>
-                            </ListItemIcon>
-                            <ListItemText className="pl-0" primary="Login"/>
-                        </MenuItem>
-                        <MenuItem component={Link} to="/register">
-                            <ListItemIcon className="min-w-40">
-                                <Icon>person_add</Icon>
-                            </ListItemIcon>
-                            <ListItemText className="pl-0" primary="Register"/>
-                        </MenuItem>
-                    </React.Fragment>
-                ) : (
+             
                     <React.Fragment>
                         <MenuItem component={Link} to="/pages/profile" onClick={userMenuClose}>
                             <ListItemIcon className="min-w-40">
@@ -94,7 +128,7 @@ function UserMenu(props)
                         </MenuItem>
                         <MenuItem
                             onClick={() => {
-                                dispatch(authActions.logoutUser());
+                                logout()
                                 userMenuClose();
                             }}
                         >
@@ -104,7 +138,7 @@ function UserMenu(props)
                             <ListItemText className="pl-0" primary="Logout"/>
                         </MenuItem>
                     </React.Fragment>
-                )}
+
             </Popover>
         </React.Fragment>
     );

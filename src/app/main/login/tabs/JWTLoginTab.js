@@ -4,9 +4,108 @@ import {TextFieldFormsy} from '@fuse';
 import Formsy from 'formsy-react';
 import * as authActions from 'app/auth/store/actions';
 import {useDispatch, useSelector} from 'react-redux';
+import Api from '../../Api'
+import SetCookie from '../../Hooks/SetCookie';
+import GetCookie from '../../Hooks/GetCookie';
+import RemoveCookie from '../../Hooks/RemoveCookie';
+import { Redirect    } from "react-router-dom";
+import { useToasts } from "react-toast-notifications";
 
 function JWTLoginTab(props)
 {
+   //login to server start
+   const [emailNumberval, setemailval] = useState("");
+   const [passval, setpassval] = useState("");
+   const [isLoginSuccesful, setIsLoginSuccesful] = useState(false);
+   const [isLoginInProgress, setIsLoginInProgress] = useState(false);
+   const { addToast } = useToasts();
+  
+   const handleFormSubmit = () => {
+   // event.preventDefault();        
+    setIsLoginInProgress(true); 
+   // fetch method
+   const LoginUrl = Api.AppBaseUrl + 'EmployeePortal/Employee/ConfirmEmployeeExists/' + emailNumberval;
+ fetch(LoginUrl, {
+    method: 'GET',
+    headers: { 
+        'Accept' : 'application/json',
+        'Content-Type': 'application/json'
+       },
+  })
+.then(res => res.json())
+.then((data) => {
+ if (data.success === true) {      
+    loginToServer();
+
+       
+    
+}else{
+    addToast(data.errorMessage, { appearance: 'error' }); 
+    setIsLoginInProgress(false);
+}
+
+});
+}
+
+
+const loginToServer = () => {       
+    setIsLoginInProgress(true); 
+   // fetch method
+   const LoginUrl = Api.AppBaseUrl + 'Login';
+   const username = emailNumberval;
+   const password = passval;
+   const sourceSystem = "employee portal";
+   const user = { username, password,sourceSystem };
+
+   fetch(LoginUrl, {
+    method: 'POST',
+    headers: { 
+        'Accept' : 'application/json',
+        'Content-Type': 'application/json'
+       },
+    body: JSON.stringify(user)
+  })
+.then(res => res.json())
+.then((data) => {
+ if (data.success === true) {
+         
+        //set cookies
+        SetCookie('Username', data.data.userName);
+        SetCookie('Email', data.data.email);
+        SetCookie('Phone', data.data.phoneNumber);
+        SetCookie('TenantId', data.data.tenantId);
+        SetCookie('Id', data.data.id);
+        SetCookie('Token', data.data.token);
+        SetCookie('IsLoggedIn', true);
+
+        setIsLoginInProgress(false);
+        addToast(data.message, { appearance: 'success' });
+        setIsLoginSuccesful(true); 
+       
+    
+}else{
+    setTimeout(() => {
+    setIsLoginSuccesful(false);
+    addToast(data.message, { appearance: 'error' }); 
+    setIsLoginInProgress(false);
+}, 1000)
+}
+
+});
+
+   
+    
+
+}
+
+
+
+   ////end
+
+
+
+
+
     const dispatch = useDispatch();
     const login = useSelector(({auth}) => auth.login);
 
@@ -38,10 +137,14 @@ function JWTLoginTab(props)
         dispatch(authActions.submitLogin(model));
     }
 
+    if(isLoginSuccesful === true){
+        return <Redirect to="/apps/dashboards/analytics" />;
+    }else{
+
     return (
         <div className="w-full">
             <Formsy
-                onValidSubmit={handleSubmit}
+                onValidSubmit={handleFormSubmit}
                 onValid={enableButton}
                 onInvalid={disableButton}
                 ref={formRef}
@@ -55,6 +158,8 @@ function JWTLoginTab(props)
                     validations={{
                         minLength: 4
                     }}
+                    value={emailNumberval}
+                    onChange={(e) => { setemailval(e.target.value) }}
                     validationErrors={{
                         minLength: 'Min character length is 4'
                     }}
@@ -73,6 +178,8 @@ function JWTLoginTab(props)
                     validations={{
                         minLength: 4
                     }}
+                    value={passval} 
+                    onChange={(e) => { setpassval(e.target.value) }}
                     validationErrors={{
                         minLength: 'Min character length is 4'
                     }}
@@ -97,38 +204,12 @@ function JWTLoginTab(props)
 
             </Formsy>
 
-            <div className="flex flex-col items-center pt-24">
-                <Typography className="text-14 font-600 py-8">
-                    Credentials
-                </Typography>
-
-                <Divider className="mb-16 w-256"/>
-
-                <table className="text-left w-256">
-                    <thead>
-                        <tr>
-                            <th><Typography className="font-600" color="textSecondary">Role</Typography></th>
-                            <th><Typography className="font-600" color="textSecondary">Username</Typography></th>
-                            <th><Typography className="font-600" color="textSecondary">Password</Typography></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><Typography>Admin</Typography></td>
-                            <td><Typography>admin</Typography></td>
-                            <td><Typography>admin</Typography></td>
-                        </tr>
-                        <tr>
-                            <td><Typography>Staff</Typography></td>
-                            <td><Typography>staff</Typography></td>
-                            <td><Typography>staff</Typography></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
 
         </div>
     );
+}
+
+
 }
 
 export default JWTLoginTab;

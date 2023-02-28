@@ -4,6 +4,12 @@ import {makeStyles} from '@material-ui/styles';
 import clsx from 'clsx';
 import {useSelector} from 'react-redux';
 
+import { useToasts } from "react-toast-notifications";
+import SetCookie from 'app/main/Hooks/SetCookie';
+import GetCookie from 'app/main/Hooks/GetCookie';
+import RemoveCookie from 'app/main/Hooks/RemoveCookie';
+import Api from '../../main/Api';
+
 const useStyles = makeStyles(theme => ({
     root  : {
         '&.user': {
@@ -37,9 +43,19 @@ const useStyles = makeStyles(theme => ({
 
 function UserNavbarHeader(props)
 {
+    
+     //custom method
+    const userName = GetCookie('Username');
+    const userEmail = GetCookie('Email');
+    const phoneNumber = GetCookie('Phone');
+    
+    
+    
+    ////end 
     const user = useSelector(({auth}) => auth.user);
 
     const classes = useStyles();
+
 
     return (
         <AppBar
@@ -49,8 +65,8 @@ function UserNavbarHeader(props)
             classes={{root: classes.root}}
             className="user relative flex flex-col items-center justify-center pt-24 pb-64 mb-32 z-0"
         >
-            <Typography className="username text-16 whitespace-no-wrap" color="inherit">{user.data.displayName}</Typography>
-            <Typography className="email text-13 mt-8 opacity-50 whitespace-no-wrap" color="inherit">{user.data.email}</Typography>
+            <Typography className="username text-16 whitespace-no-wrap" color="inherit">{userName}</Typography>
+            <Typography className="email text-13 mt-8 opacity-50 whitespace-no-wrap" color="inherit">{userEmail}</Typography>
             <Avatar
                 className={clsx(classes.avatar, "avatar")}
                 alt="user photo"

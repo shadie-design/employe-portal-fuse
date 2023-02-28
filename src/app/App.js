@@ -11,6 +11,7 @@ import AppContext from './AppContext';
 import routes from './fuse-configs/routesConfig';
 import {create} from 'jss';
 import {StylesProvider, jssPreset, createGenerateClassName} from '@material-ui/styles';
+import { ToastProvider } from "react-toast-notifications";
 
 const jss = create({
     ...jssPreset(),
@@ -22,6 +23,7 @@ const generateClassName = createGenerateClassName();
 
 const App = () => {
     return (
+        <ToastProvider autoDismiss={true}>
         <AppContext.Provider
             value={{
                 routes
@@ -41,6 +43,7 @@ const App = () => {
                 </Provider>
             </StylesProvider>
         </AppContext.Provider>
+        </ToastProvider>
     );
 };
 

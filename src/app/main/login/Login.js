@@ -39,7 +39,9 @@ function Login() {
                     clearTimeout(resetTimeout)
                     if (index + 1 === totalPages) {
                         resetTimeout = setTimeout(() => {
-                            carouselRef.current.goTo(0)
+                            if(carouselRef !== null){
+                                carouselRef.current.goTo(0)
+                            }
                         }, 6500) // same time
                     }
                 }}
@@ -117,37 +119,14 @@ function Login() {
 
                         <Typography variant="h6" className="text-center md:w-full mb-48">LOGIN TO YOUR ACCOUNT</Typography>
 
-                        <Tabs
-                            value={selectedTab}
-                            onChange={handleTabChange}
-                            variant="fullWidth"
-                            className="mb-32"
-                        >
-                            <Tab
-                                icon={<img className="h-40 p-4 bg-black rounded-12" src="assets/images/logos/jwt.svg" alt="firebase" />}
-                                className="min-w-0"
-                                label="JWT"
-                            />
-                            <Tab
-                                icon={<img className="h-40" src="assets/images/logos/firebase.svg" alt="firebase" />}
-                                className="min-w-0"
-                                label="Firebase"
-                            />
-                            <Tab
-                                icon={<img className="h-40" src="assets/images/logos/auth0.svg" alt="auth0" />}
-                                className="min-w-0"
-                                label="Auth0"
-                            />
-                        </Tabs>
+                        
 
-                        {selectedTab === 0 && <JWTLoginTab />}
-                        {selectedTab === 1 && <FirebaseLoginTab />}
-                        {selectedTab === 2 && <Auth0LoginTab />}
+                         <JWTLoginTab />
 
                         <div className="flex flex-col items-center justify-center pt-32">
                             <span className="font-medium">Don't have an account?</span>
-                            <Link className="font-medium" to="/register">Create an account</Link>
-                            <Link className="font-medium mt-8" to="/">Back to Dashboard</Link>
+                            <Link className="font-medium" to="/register">Click here</Link>
+                           
                         </div>
 
                     </CardContent>
